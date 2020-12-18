@@ -1,0 +1,807 @@
+<?xml version="1.0"?>
+<!--
+    Note: As an alternative to hand editing this file you can use the 
+    web admin tool to configure settings for your application. Use
+    the Website->Asp.Net Configuration option in Visual Studio.
+    A full list of settings and comments can be found in 
+    machine.config.comments usually located in 
+    \Windows\Microsoft.Net\Framework\v2.x\Config 
+-->
+<configuration>
+  <configSections>
+    <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, Imanami.log4net" requirePermission="false"/>
+    <section name="unity" type="Microsoft.Practices.Unity.Configuration.UnityConfigurationSection, Microsoft.Practices.Unity.Configuration"/>
+    <section name="system.identityModel" type="System.IdentityModel.Configuration.SystemIdentityModelSection, System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+    <section name="system.identityModel.services" type="System.IdentityModel.Services.Configuration.SystemIdentityModelServicesSection, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+    <section name="system.directoryservices" type="System.DirectoryServices.SearchWaitHandler, System.DirectoryServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  </configSections>
+  <system.directoryservices>
+    <DirectorySearcher waitForPagedSearchData="true"/>
+  </system.directoryservices>
+  <appSettings>
+    <add key="log4net.NullText" value=" "/>
+    <add key="log4net.MethodScope" value="public"/>
+    <add key="log4net.NamespacesToLog" value=""/>
+    <add key="EventLogAppender.Threshold" value="SUCCESSAUDIT"/>
+    <add key="vsname" value="GroupIDSSP"/>
+    <add key="aspnet:UseTaskFriendlySynchronizationContext" value="true"/>
+    <add key="PIDService" value="http://phoneid.azurewebsites.net/api/webauth/"/>
+    <add key="dateTimeFormats" value="dd/MM/yyyy HH:mm:ss,dd/M/yyyy HH:mm:ss,MM/dd/yyyy HH:mm:ss,M/dd/yyyy HH:mm:ss,dd/MM/yyyy,dd/M/yyyy,MM/dd/yyyy,M/dd/yyyy,yyyyMMddHHmmss'Z',yyyyMMddHHmmss"/>
+  </appSettings>
+  <connectionStrings>
+    <add name="GroupIDDBConnectionString" connectionString="server=*****;database=GroupID;Integrated Security=false;uid=*****;password=*****;" providerName="System.Data.SqlClient"/>
+    <add name="GroupIDEFString" connectionString="res://*/Models.GroupID.csdl|res://*/Models.GroupID.ssdl|res://*/Models.GroupID.msl"/>
+  </connectionStrings>
+  <system.identityModel configSource="identity.config"/>
+  <!--<system.identityModel.services configSource="identityServices.config" />-->
+  <!--<system.diagnostics configSource="tracing.config" />-->
+  <!--
+    For a description of web.config changes see http://go.microsoft.com/fwlink/?LinkId=235367.
+
+    The following attributes can be set on the <httpRuntime> tag.
+      <system.Web>
+        <httpRuntime targetFramework="4.6.1" />
+      </system.Web>
+  -->
+  <system.web>
+    <globalization uiCulture="auto:en" culture="auto:en-US"/>
+    <compilation targetFramework="4.7.2" debug="true"/>
+  </system.web>
+  <system.web>
+    <!--
+            The <authentication> section enables configuration 
+            of the security authentication mode used by 
+            ASP.NET to identify an incoming user. 
+        -->
+    <!--<authentication mode="None"></authentication>-->
+    <!--
+            The <customErrors> section enables configuration 
+            of what to do if/when an unhandled error occurs 
+            during the execution of a request. Specifically, 
+            it enables developers to configure html error pages 
+            to be displayed in place of a error stack trace.
+
+        <customErrors mode="RemoteOnly" defaultRedirect="GenericErrorPage.htm">
+            <error statusCode="403" redirect="NoAccess.htm" />
+            <error statusCode="404" redirect="FileNotFound.htm" />
+        </customErrors>
+        -->
+    <pages controlRenderingCompatibilityVersion="3.5" clientIDMode="AutoID"/>
+    <customErrors mode="Off" />
+  </system.web>
+  <system.serviceModel>
+    <extensions>
+      <behaviorExtensions>
+        <add name="customServiceCredentials" type="Imanami.GroupID.DataService.Security.WcfToken.CustomServiceCredentialsConfigHandler, Imanami.GroupID.DataService"/>
+        <add name="customErrorHandler" type="Imanami.GroupID.DataService.Common.ErrorHandlingBehaviorElement, Imanami.GroupID.DataService"/>
+      </behaviorExtensions>
+      <bindingElementExtensions>
+        <add name="customServiceBinding" type="Imanami.GroupID.DataService.Security.WcfToken.CustomServiceBindingConfigHandler, Imanami.GroupID.DataService"/>
+        <!--<add name="HttpTransportElementWithWsdl" type="HttpTransportWithWsdl.HttpTransportElementWithWsdl, HttpTransportWithWsdl"/>-->
+      </bindingElementExtensions>
+    </extensions>
+    <bindings>
+      <customBinding>
+        <binding name="customTokenBinding" closeTimeout="01:00:00" openTimeout="10:00:00" receiveTimeout="10:00:00" sendTimeout="10:00:00">
+          <!--<readerQuotas maxDepth="32" maxStringContentLength=" 2147483647" maxArrayLength="128000" maxBytesPerRead="2147483647" maxNameTableCharCount="16384"/>-->
+          <!--<reliableSession ordered="true" inactivityTimeout="00:10:00"/>-->
+          <!--enabled="false"/>-->
+          <textMessageEncoding/>
+          <!--<security authenticationMode="SecureConversation" allowInsecureTransport="true" requireSecurityContextCancellation="true">
+            <secureConversationBootstrap authenticationMode="UserNameOverTransport" requireDerivedKeys="false" />
+          </security>-->
+          <!--<security authenticationMode="UserNameOverTransport" allowInsecureTransport="true" /> -->
+          <customServiceBinding/>
+          <httpsTransport/>
+          <!--<HttpTransportElementWithWsdl />-->
+        </binding>
+      </customBinding>
+      <wsHttpBinding>
+        <!--<binding name="WSHttpBinding_Custom" closeTimeout="01:00:00" openTimeout="10:00:00" receiveTimeout="10:00:00" sendTimeout="10:00:00" bypassProxyOnLocal="false" transactionFlow="false" hostNameComparisonMode="StrongWildcard" maxBufferPoolSize="2147483647" maxReceivedMessageSize="2147483647" messageEncoding="Text" textEncoding="utf-8" useDefaultWebProxy="true" allowCookies="false">
+          <readerQuotas maxDepth="32" maxStringContentLength=" 2147483647" maxArrayLength="128000" maxBytesPerRead="2147483647" maxNameTableCharCount="16384"/>
+          <reliableSession ordered="true" inactivityTimeout="00:10:00" enabled="false"/>
+          <security mode="Transport">
+            <customServiceBinding />
+            -->
+        <!--<transport clientCredentialType="Windows"/>-->
+        <!--
+            -->
+        <!--<message clientCredentialType="Windows" negotiateServiceCredential="true" algorithmSuite="Default" establishSecurityContext="true"/>
+            <message clientCredentialType="UserName" negotiateServiceCredential="true" />-->
+        <!--
+          </security>
+        </binding>-->
+        <binding name="WSHttpBinding_GroupIDDataService" closeTimeout="01:00:00" openTimeout="10:00:00" receiveTimeout="10:00:00" sendTimeout="10:00:00" bypassProxyOnLocal="false" transactionFlow="false" hostNameComparisonMode="StrongWildcard" maxBufferPoolSize="2147483647" maxReceivedMessageSize="2147483647" messageEncoding="Text" textEncoding="utf-8" useDefaultWebProxy="true" allowCookies="false">
+          <readerQuotas maxDepth="32" maxStringContentLength=" 2147483647" maxArrayLength="128000" maxBytesPerRead="2147483647" maxNameTableCharCount="16384"/>
+          <reliableSession ordered="true" inactivityTimeout="00:10:00" enabled="false"/>
+          <security mode="Transport">
+            <transport clientCredentialType="Windows"/>
+            <!--<message clientCredentialType="Windows" negotiateServiceCredential="true" algorithmSuite="Default" establishSecurityContext="true"/>-->
+            <!--<message clientCredentialType="UserName" negotiateServiceCredential="true" />-->
+          </security>
+        </binding>
+        <binding name="sms2wsHttpBinding" closeTimeout="00:01:00" openTimeout="00:01:00" receiveTimeout="00:10:00" sendTimeout="00:01:00" bypassProxyOnLocal="false" transactionFlow="false" hostNameComparisonMode="StrongWildcard" maxBufferPoolSize="524288" maxReceivedMessageSize="65536" messageEncoding="Text" textEncoding="utf-8" useDefaultWebProxy="true" allowCookies="false">
+          <readerQuotas maxDepth="32" maxStringContentLength="8192" maxArrayLength="16384" maxBytesPerRead="4096" maxNameTableCharCount="16384"/>
+          <reliableSession ordered="true" inactivityTimeout="00:10:00" enabled="false"/>
+          <security mode="None">
+            <transport clientCredentialType="Windows" proxyCredentialType="None" realm=""/>
+            <message clientCredentialType="Windows" negotiateServiceCredential="true"/>
+          </security>
+        </binding>
+      </wsHttpBinding>
+      <ws2007FederationHttpBinding>
+        <binding name="WS2007Federation_GroupIDDataService" closeTimeout="01:00:00" openTimeout="10:00:00" receiveTimeout="10:00:00" sendTimeout="10:00:00" bypassProxyOnLocal="false" transactionFlow="false" hostNameComparisonMode="StrongWildcard" maxBufferPoolSize="2147483647" maxReceivedMessageSize="2147483647" messageEncoding="Text" textEncoding="utf-8" useDefaultWebProxy="true">
+          <readerQuotas maxDepth="32" maxStringContentLength=" 2147483647" maxArrayLength="128000" maxBytesPerRead="2147483647" maxNameTableCharCount="16384"/>
+          <reliableSession ordered="true" inactivityTimeout="00:10:00" enabled="false"/>
+          <security mode="TransportWithMessageCredential">
+            <message establishSecurityContext="false" issuedKeyType="BearerKey">
+              <issuerMetadata address="http://win-g8173ikef63.kamran.local/GroupIDSecurityService/FederationMetadata/2007-06/FederationMetadata.xml"/>
+            </message>
+          </security>
+        </binding>
+      </ws2007FederationHttpBinding>
+      <basicHttpBinding>
+        <binding name="sms2SOAPbasicHttpBinding" closeTimeout="00:01:00" openTimeout="00:01:00" receiveTimeout="00:10:00" sendTimeout="00:01:00" allowCookies="false" bypassProxyOnLocal="false" hostNameComparisonMode="StrongWildcard" maxBufferSize="65536" maxBufferPoolSize="524288" maxReceivedMessageSize="65536" messageEncoding="Text" textEncoding="utf-8" transferMode="Buffered" useDefaultWebProxy="true">
+          <readerQuotas maxDepth="32" maxStringContentLength="8192" maxArrayLength="16384" maxBytesPerRead="4096" maxNameTableCharCount="16384"/>
+          <security mode="None">
+            <transport clientCredentialType="None" proxyCredentialType="None" realm=""/>
+            <message clientCredentialType="UserName" algorithmSuite="Default"/>
+          </security>
+        </binding>
+        <binding name="sms2SOAPbasicHttpsBinding" closeTimeout="00:01:00" openTimeout="00:01:00" receiveTimeout="00:10:00" sendTimeout="00:01:00" allowCookies="false" bypassProxyOnLocal="false" hostNameComparisonMode="StrongWildcard" maxBufferSize="65536" maxBufferPoolSize="524288" maxReceivedMessageSize="65536" messageEncoding="Text" textEncoding="utf-8" transferMode="Buffered" useDefaultWebProxy="true">
+          <readerQuotas maxDepth="32" maxStringContentLength="8192" maxArrayLength="16384" maxBytesPerRead="4096" maxNameTableCharCount="16384"/>
+          <security mode="Transport">
+            <transport clientCredentialType="None" proxyCredentialType="None" realm=""/>
+            <message clientCredentialType="UserName" algorithmSuite="Default"/>
+          </security>
+        </binding>
+      </basicHttpBinding>
+    </bindings>
+    <services>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Workflow.WorkflowManager">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Workflow.IWorkflowManager">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.DataService.History">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.DataService.IHistory">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <!--<service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.DataService.MembershipLifeCycle">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.DataService.IMembershipLifecycle">
+          <identity>
+            <dns value="localhost" />
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange" />
+      </service>-->
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.DataService.MembershipLifeCycle">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.DataService.IMembershipLifecycle">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.ManagedByLifecycle.ManagedByLifecycleService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.ManagedByLifecycle.IManagedByLifecycleService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.DataService.GroupIDDBInfo">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.DataService.IGroupIDDBInfo">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.DataService.DataCollectionService.IdentityStore">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.DataService.DataCollectionService.IIdentityStore">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.DataService.DataCollectionService.IdentityStoreConfiguration">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.DataService.DataCollectionService.IIdentityStoreConfiguration">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.DataService.IdentityStoreQuestion">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.DataService.IIdentityStoreQuestion">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.DataService.DataCollectionService.IdentityStoreQuestion">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.DataService.DataCollectionService.IIdentityStoreQuestion">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <!--<service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.DataService.PasswordCenter.AdministrationService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.DataService.PasswordCenter.IAdministrationService">
+          <identity>
+            <dns value="localhost" />
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange" />
+      </service>-->
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.DataService.PasswordCenter.AdministrationService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.DataService.PasswordCenter.IAdministrationService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.Configuration.ConfigurationService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.Configuration.IConfigurationService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.Services.SamlIdentityProviders.SamlIdentityProvider">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.SamlIdentityProviders.ISamlIdentityProvider">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.Services.ElasticSearch.SyncronizationService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.ElasticSearch.ISyncronizationService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.DataService.PasswordCenter.UserService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.DataService.PasswordCenter.IUserService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.DataService.PasswordCenter.HelpDeskService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.DataService.PasswordCenter.IHelpDeskService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.ServiceConfiguration.DatabaseConfigurationService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.ServiceConfiguration.IDatabaseConfigurationService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.Plugins.SecurityGroupExpirationService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.Plugins.ISecurityGroupExpirationService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.Script.GroupScriptService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.Script.IGroupScriptService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <!--<service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Administration.AdministrationService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Administration.IAdministrationService">
+          <identity>
+            <dns value="localhost" />
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>-->
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Administration.AdministrationService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Administration.IAdministrationService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.Services.AuthenticationService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.IAuthenticationService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.User.UserManagementService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.User.IUserManagementService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.PasswordCenter.UserAgentService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.PasswordCenter.IUserAgentService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="WindowsAuthenticationBehavior" name="Imanami.GroupID.DataService.PasswordCenter.EnrollmentService">
+        <endpoint address="" binding="wsHttpBinding" bindingConfiguration="WSHttpBinding_GroupIDDataService" contract="Imanami.GroupID.DataService.PasswordCenter.IEnrollmentService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Contact.ContactManagementService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Contact.IContactManagementService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Group.GroupService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Group.IGroupService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Search.SearchService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Search.ISearchService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Upgrade.UpgradeService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Upgrade.IUpgradeService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.Scheduling.SchedulingService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.Scheduling.ISchedulingService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Services.TaskProgressReporting.TaskProgressReporting">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Services.TaskProgressReporting.ITaskProgressReporting">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="Federation2007AuthenticationBehavior" name="Imanami.GroupID.DataService.Mobile.MobileService">
+        <endpoint address="" binding="ws2007FederationHttpBinding" bindingConfiguration="WS2007Federation_GroupIDDataService" contract="Imanami.GroupID.DataService.Mobile.IMobileService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpsBinding" contract="IMetadataExchange"/>
+      </service>
+    </services>
+    <behaviors>
+      <serviceBehaviors>
+        <behavior name="WindowsAuthenticationBehavior">
+          <serviceMetadata httpsGetEnabled="true"/>
+          <serviceDebug includeExceptionDetailInFaults="true"/>
+          <serviceAuthorization serviceAuthorizationManagerType="Imanami.GroupID.DataService.Security.AuthorizationManager,Imanami.GroupID.DataService"/>
+          <!--<serviceCredentials>
+            <serviceCertificate findValue="localhost" x509FindType="FindBySubjectName" storeName="My" storeLocation="LocalMachine"/>
+          </serviceCredentials>-->
+          <!--<serviceCredentials>
+            <userNameAuthentication userNamePasswordValidationMode="Custom"
+             customUserNamePasswordValidatorType="Imanami.GroupID.DataService.Security.CustomAuthenticationBehavior, Imanami.GroupID.DataService" />
+          </serviceCredentials>-->
+        </behavior>
+        <behavior name="CustomAuthenticationBehavior">
+          <serviceMetadata httpsGetEnabled="true"/>
+          <serviceDebug includeExceptionDetailInFaults="true"/>
+          <serviceAuthorization serviceAuthorizationManagerType="Imanami.GroupID.DataService.Security.IdStoreAuthorizationManager,Imanami.GroupID.DataService" principalPermissionMode="Custom">
+            <!--<authorizationPolicies>
+            -->
+            <!--<add policyType="Imanami.GroupID.Security.WcfToken.CustomTokenAuthorizationPolicy,Imanami.GroupID.Security"></add>-->
+            <!--
+              <add policyType="Imanami.GroupID.DataService.Security.WcfToken.CustomTokenAuthorizationPolicy,Imanami.GroupID.DataService"></add>
+          </authorizationPolicies>-->
+          </serviceAuthorization>
+          <customServiceCredentials>
+            <!--<serviceCertificate findValue="localhost" x509FindType="FindBySubjectName" storeName="My" storeLocation="LocalMachine"/>-->
+          </customServiceCredentials>
+          <!--<serviceCredentials>
+            <serviceCertificate findValue="localhost" x509FindType="FindBySubjectName" storeName="My" storeLocation="LocalMachine"/>
+          </serviceCredentials>-->
+          <!--<serviceCredentials>
+            <userNameAuthentication userNamePasswordValidationMode="Custom"
+             customUserNamePasswordValidatorType="Imanami.GroupID.DataService.Security.CustomAuthenticationBehavior, Imanami.GroupID.DataService" />
+          </serviceCredentials>-->
+        </behavior>
+        <behavior name="Federation2007AuthenticationBehavior">
+          <serviceMetadata httpsGetEnabled="true"/>
+          <serviceDebug includeExceptionDetailInFaults="true"/>
+          <!--<serviceAuthorization serviceAuthorizationManagerType="Imanami.GroupID.DataService.Security.FederatedClaimsAuthorizationManager,Imanami.GroupID.DataService"/>-->
+          <serviceCredentials useIdentityConfiguration="true" identityConfiguration="stsConfiguration"/>
+          <serviceAuthorization principalPermissionMode="Always"/>
+          <customErrorHandler/>
+        </behavior>
+        <behavior name="">
+          <serviceMetadata httpGetEnabled="true"/>
+          <serviceDebug includeExceptionDetailInFaults="false"/>
+        </behavior>
+      </serviceBehaviors>
+    </behaviors>
+    <client>
+      <endpoint address="http://sms2.cdyne.com/sms.svc/Soap" binding="basicHttpBinding" bindingConfiguration="sms2SOAPbasicHttpBinding" contract="CdyneSmsV2WebService.Isms" name="sms2SOAPbasicHttpBinding"/>
+      <endpoint address="https://cciad1ws2.cdyne.net/sms.svc/SecureSoap" binding="basicHttpBinding" bindingConfiguration="sms2SOAPbasicHttpsBinding" contract="CdyneSmsV2WebService.Isms" name="sms2SOAPbasicHttpsBinding"/>
+      <endpoint address="http://sms2.cdyne.com/sms.svc/WS" binding="wsHttpBinding" bindingConfiguration="sms2wsHttpBinding" contract="CdyneSmsV2WebService.Isms" name="sms2wsHttpBinding"/>
+    </client>
+    <serviceHostingEnvironment aspNetCompatibilityEnabled="false" multipleSiteBindingsEnabled="true" minFreeMemoryPercentageToActivateService="0"/>
+  </system.serviceModel>
+  <log4net>
+    <appender name="DetailedRollingLogFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="Log\GroupID10-DataService.log"/>
+      <appendToFile value="true"/>
+      <rollingStyle value="Size"/>
+      <datePattern value="yyyyMMdd-HHmm"/>
+      <maxSizeRollBackups value="10"/>
+      <maximumFileSize value="100MB"/>
+      <staticLogFileName value="true"/>
+      <lockingModel type="log4net.Appender.FileAppender+MinimalLock"/>
+      <layout type="log4net.Layout.PatternLayout">
+        <!--<conversionPattern value="%d [%t]%-5p %c [%x] [%property{NDC}] - %m%n" />-->
+        <header value="Date #=# Level #=# Thread Id #=# Logger #=# Action #=# Event Id #=# Message &#xA;"/>
+        <conversionPattern value="%date #=# %-5level #=# [%thread] #=# %logger #=# %property{ActionId} #=# %property{EventID} #=# %property{LoginId} #=# %property{Category} #=# %message%n"/>
+      </layout>
+      <threshold value="Error"/>
+    </appender>
+    <appender name="EventLogAppender" type="log4net.Appender.EventLogAppender">
+      <param name="LogName" value="Imanami GroupID"/>
+      <param name="ApplicationName" value="GroupID Data Service"/>
+      <param name="CategoryFileName" value="GroupIDEventLogCategories.dll"/>
+      <param name="CategoryCount" value="3"/>
+      <mapping>
+        <level value="ERROR"/>
+        <eventLogEntryType value="Error"/>
+      </mapping>
+      <mapping>
+        <level value="WARN"/>
+        <eventLogEntryType value="Warning"/>
+      </mapping>
+      <mapping>
+        <level value="INFO"/>
+        <eventLogEntryType value="Information"/>
+      </mapping>
+      <mapping>
+        <level value="SUCCESSAUDIT"/>
+        <eventLogEntryType value="SuccessAudit"/>
+      </mapping>
+      <mapping>
+        <level value="FAILUREAUDIT"/>
+        <eventLogEntryType value="FailureAudit"/>
+      </mapping>
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%date #=# %-5level #=# [%thread] #=# %logger #=# %property{ActionId} #=# %property{EventID} #=# %property{LoginId} #=# %property{Category} #=# %message%n"/>
+        <!--<conversionPattern value="%date #=# %-5level #=# [%thread] #=# %logger #=# %message%n" />-->
+      </layout>
+      <threshold value="Error"/>
+    </appender>
+    <root>
+      <level value="Error"/>
+      <appender-ref ref="DetailedRollingLogFileAppender"/>
+      <appender-ref ref="EventLogAppender"/>
+    </root>
+  </log4net>
+  <unity>
+    <containers>
+      <container>
+        <types>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreSetting, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreSetting, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStore, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStore, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreConfiguration, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreConfiguration, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreNotification, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreNotification, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreQuestion, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreQuestion, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreSchemaBaseQuestion, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreSchemaBaseQuestion, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IQuestion, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.Question, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IStoreType, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.StoreType, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.ChangeTracker.IAction, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.ChangeTracker.EntityToSQLRepositories.Action, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.ChangeTracker.IHistory, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.ChangeTracker.EntityToSQLRepositories.History, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.ChangeTracker.IGroupIDDBInfo, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.ChangeTracker.EntityToSQLRepositories.GroupIDDBInfo, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.GroupIdConfiguration.Global.IAttributes, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.GroupIdConfiguration.Global.EntityToSQLRepositories.Attributes, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.GroupIdConfiguration.Global.IValues, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.GroupIdConfiguration.Global.EntityToSQLRepositories.Values, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.GroupIdConfiguration.Monitor.IActionLookup, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.GroupIdConfiguration.Monitor.EntityToSQLRepositories.ActionLookup, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.GroupIdConfiguration.Monitor.IActionToMonitor, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.GroupIdConfiguration.Monitor.EntityToSQLRepositories.ActionToMonitor, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.GroupIdConfiguration.Monitor.ITrackChanges, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.GroupIdConfiguration.Monitor.EntityToSQLRepositories.TrackChanges, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Common.IDomain, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Common.EntityToSQLRepositories.Domain, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Plugins.SecurityGroupExpiration.IGroup, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Plugins.SecurityGroupExpiration.EntityToSQLRepositories.Group, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Plugins.SecurityGroupExpiration.IGroupMember, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Plugins.SecurityGroupExpiration.EntityToSQLRepositories.GroupMember, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreEnrollmentData, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreEnrollmentData, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreUser, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreUser, Imanami.Data.Repository"/>
+          <!--<type type="Imanami.Data.Repository.MembershipLifeCycle.IMembershipLifeCycleMembers, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.MembershipLifeCycle.EntityToSQLRepositories.MembershipLifecycle, Imanami.Data.Repository"/>-->
+          <type type="Imanami.Data.Repository.PasswordCenter.ISMSGatewayType, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.SMSGatewayType, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.ISMSGatewayAccount, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.SMSGatewayAccount, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreSMSConfiguration, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreSMSConfiguration, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Script.IGroupScript, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Script.EntityToSQLRepositories.GroupScript, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IStoreType, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFStoreType, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IIdentityStore, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFIdentityStore, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IClient, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFClient, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IIdentityStoreRole, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFIdentityStoreRole, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IConfigurationAttribute, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFConfigurationAttribute, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IIdentityStoreConfiguration, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFIdentityStoreConfiguration, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IIdentityStoreRoleConfiguration, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFIdentityStoreRoleConfiguration, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IExpireRenewFields, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFExpireRenewFields, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.Workflow.IRouteFilter, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.Workflow.EntityToSQLRepositories.RouteFilter, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.ExtensionData.ISchemaRepository, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.ExtensionData.EntityToSQLRepositories.Schema, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.Workflow.IRoute, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.Workflow.EntityToSQLRepositories.Route, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IMobileRegistration, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.MobileRegistration, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IMobileVerification, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.MobileVerification, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IRoleAuthentication, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.RoleAuthentication, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IAuthenticationType, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.AuthenticationType, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.TaskProgressReporting.ITaskProgressReporter, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.TaskProgressReporting.EntityToSQLRepositories.TaskProgressReporter, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IAuditing, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.Auditing, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IActivity, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.Activity, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IPasswordCenterHistory, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.PasswordCenterHistory, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.Workflow.IField, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.Workflow.EntityToSQLRepositories.Field, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.Workflow.IRequestNotification, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.Workflow.RequestNotificationRepository, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreConfigurationSchema, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreConfigurationSchema, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IIdentityStoreAttributesValue, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.IdentityStoreAttributesValue, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IMessagingProviderType, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFMessagingProviderType, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IMessagingServer, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFMessagingServer, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IPhoneIDClientRepository, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.PhoneIDClient, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IPhoneIDRequestRepository, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.PhoneIDRequest, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.ISecureLinkInfo, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.SecureLinkInfo, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IYubiKeyEnrollmentData, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.YubiKeyEnrollmentData, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.UserLifeCycle.IProfileVerificationStatusRepository, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.UserLifeCycle.ProfileVerificationStatusRepository, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.UserLifeCycle.IProfileVerificationConfigurationRepository, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.UserLifeCycle.ProfileVerificationConfigurationRepository, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Mobile.IPushNotificationRepository, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Mobile.EntityToSQLRepository.PushNotificationRepository, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IUserSetting, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFUserSetting, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.PasswordCenter.IPermissionReplicationData, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.PasswordCenter.EntityToSQLRepositories.PermissionReplicationData, Imanami.Data.Repository"/>
+          <type type="Imanami.Data.Repository.Services.IQueue, Imanami.Data.Repository" mapTo="Imanami.Data.Repository.Services.EntityToSQLRepositories.EFQueue, Imanami.Data.Repository"/>
+        </types>
+      </container>
+    </containers>
+  </unity>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Exchange.Transporter.Provider.MicrosoftOnline" culture="neutral" publicKeyToken="31bf3856ad364e35"/>
+        <codeBase version="1.0.0.0" href="FILE://C:/Program Files/Microsoft Transporter Tools/Bin/Microsoft.Exchange.Transporter.Provider.MicrosoftOnline.dll"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Practices.Unity" publicKeyToken="31bf3856ad364e35" culture="neutral"/>
+        <bindingRedirect oldVersion="0.0.0.0-3.0.0.0" newVersion="3.0.0.0"/>
+      </dependentAssembly>
+       <dependentAssembly>
+                <assemblyIdentity name="PostSharp" publicKeyToken="b13fd38b8f9c99d7"/>
+                <bindingRedirect oldVersion="2.1.0.0-4.2.17.0" newVersion="4.2.17.0"/>             
+      </dependentAssembly> 
+       <dependentAssembly>
+                <assemblyIdentity name="Imanami.Foundation" publicKeyToken="8cd3e6ab09a4c7bf"/>
+                <bindingRedirect oldVersion="0.0.0.0-10.0.0.0" newVersion="10.0.0.0"/>             
+      </dependentAssembly>
+       <dependentAssembly>
+                <assemblyIdentity name="Nest" publicKeyToken="96c599bbe3e70f5d"/>
+                <bindingRedirect oldVersion="0.0.0.0-5.0.0.0" newVersion="6.0.0.0"/>             
+      </dependentAssembly> 
+
+
+      <dependentAssembly>
+        <assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral"/>
+        <bindingRedirect oldVersion="0.0.0.0-10.0.0.0" newVersion="10.0.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Net.Http.Primitives" publicKeyToken="b03f5f7f11d50a3a" culture="neutral"/>
+        <bindingRedirect oldVersion="0.0.0.0-4.2.29.0" newVersion="4.2.29.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Http" publicKeyToken="31bf3856ad364e35" culture="neutral"/>
+        <bindingRedirect oldVersion="4.0.0.0-4.0.0.0" newVersion="5.0.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Net.Http.Formatting" publicKeyToken="31bf3856ad364e35" culture="neutral"/>
+        <bindingRedirect oldVersion="0.0.0.0-5.0.0.0" newVersion="5.0.0.0"/>
+      </dependentAssembly>
+      <probing privatePath="bin;PowerTools"/>
+    </assemblyBinding>
+  </runtime>
+  <location path="Services/Administration/AdministrationService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/Group/GroupService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/User/UserManagementService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="History.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Configuration/ConfigurationService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/Contact/ContactManagementService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/Search/SearchService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/Workflow/WorkflowManager.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/SamlIdentityProviders/SamlIdentityProvider.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="PasswordCenter/UserService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="PasswordCenter/HelpDeskService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="PasswordCenter/AdministrationService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/Scheduling/Scheduling.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/TaskProgressReporting/TaskProgressReporting.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/Upgrade/UpgradeService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Mobile/MobileService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <location path="Services/ManagedByLifecycle/ManagedByLifecycleService.svc" allowOverride="true">
+    <system.webServer>
+      <modules>
+        <add name="WSFederationAuthenticationModule" type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+        <add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" preCondition="managedHandler"/>
+      </modules>
+    </system.webServer>
+  </location>
+  <system.webServer>
+    <!--<modules>
+    <add name="WSFederationAuthenticationModule"
+             type="System.IdentityModel.Services.WSFederationAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+             preCondition="managedHandler" />
+    <add name="SessionAuthenticationModule"
+         type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+         preCondition="managedHandler" />
+    </modules>-->
+    <!--<security>
+            <authentication>
+                <windowsAuthentication enabled="false" />
+            </authentication>
+            <access sslFlags="Ssl, SslNegotiateCert" />
+        </security>-->
+    <handlers>
+      <remove name="ExtensionlessUrlHandler-Integrated-4.0"/>
+      <remove name="OPTIONSVerbHandler"/>
+      <remove name="TRACEVerbHandler"/>
+      <add name="ExtensionlessUrlHandler-Integrated-4.0" path="*." verb="*" type="System.Web.Handlers.TransferRequestHandler" preCondition="integratedMode,runtimeVersionv4.0"/>
+    </handlers>
+  </system.webServer>
+</configuration>

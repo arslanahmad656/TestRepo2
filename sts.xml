@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<configuration>
+  <configSections>
+    <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, Imanami.log4net" requirePermission="false"/>
+    <section name="system.identityModel" type="System.IdentityModel.Configuration.SystemIdentityModelSection, System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+    <section name="system.identityModel.services" type="System.IdentityModel.Services.Configuration.SystemIdentityModelServicesSection, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089"/>
+    <section name="imanami.sts.repositories" type="Imanami.STS.Core.Configuration.RepositoryConfigurationSection, Imanami.STS.Core"/>
+    <sectionGroup name="madam">
+      <section name="userSecurityAuthority" type="System.Configuration.SingleTagSectionHandler, System"/>
+      <section name="formsAuthenticationDisposition" type="Madam.FormsAuthenticationDispositionSectionHandler, Madam"/>
+    </sectionGroup>
+  </configSections>
+  <imanami.sts.repositories configSource="repositories.config"/>
+  <!--<system.diagnostics configSource="tracing.config" />-->
+  <appSettings>
+    <add key="webpages:Version" value="3.0.0.0"/>
+    <add key="webpages:Enabled" value="false"/>
+    <add key="ClientValidationEnabled" value="true"/>
+    <add key="UnobtrusiveJavaScriptEnabled" value="true"/>
+    <add key="DefaultTokenLifetimeInMinutes" value="10368000"/>
+    <add key="MaximumTokenLifetimeInDays" value="7300"/>
+    <add key="CertificateStoreName" value="My"/>
+    <add key="CertificateStoreLocation" value="LocalMachine"/>
+    <add key="CertificateSubjectName" value="CN=GroupIDSecurityService"/>
+    <add key="log4net.NullText" value=" "/>
+    <add key="EventLogAppender.Threshold" value="SUCCESSAUDIT"/>
+    <add key="vsname" value="ImanamiSTS"/>
+    <add key="TokkenExpiryTime" value="30"/>
+    <add key="ViewsFolder" value="New_Views" />
+  </appSettings>
+  <location path="FederationMetadata">
+    <system.web>
+      <authorization>
+        <allow users="*"/>
+      </authorization>
+    </system.web>
+  </location>
+  <!--
+    For a description of web.config changes see http://go.microsoft.com/fwlink/?LinkId=235367.
+
+    The following attributes can be set on the <httpRuntime> tag.
+      <system.Web>
+        <httpRuntime targetFramework="4.6.1" />
+      </system.Web>
+  -->
+  <system.web>
+    <globalization culture="auto" uiCulture="auto"/>
+    <compilation targetFramework="4.7.2" debug="true"/>
+    <httpHandlers>
+    </httpHandlers>
+    <customErrors mode="Off" />
+  </system.web>
+  <location path="Content">
+    <system.web>
+      <authorization>
+        <allow users="*"/>
+      </authorization>
+    </system.web>
+  </location>
+  <location path="~/Account/Authenticate">
+    <system.web>
+      <authorization>
+        <allow users="*"/>
+      </authorization>
+    </system.web>
+  </location>
+  <location path="~/Administrator">
+    <system.web>
+      <identity impersonate="true"/>
+      <authentication>
+        <windowsAuthentication enabled="true"/>
+        <anonymousAuthentication enabled="false"/>
+      </authentication>
+      <authorization>
+        <deny users="?"/>
+        <allow users="*"/>
+      </authorization>
+    </system.web>
+  </location>
+  <madam>
+    <formsAuthenticationDisposition>
+      <discriminators all="true">
+        <!-- This discriminator helps detect redirection to the Forms login page. -->
+        <discriminator inputExpression="Response.RedirectLocation" pattern="Authenticate\?returnurl\=" type="Madam.RegexDiscriminator"/>
+        <!-- This discriminator determines when Forms is opted out for 
+         an alternative authentication scheme, such as Basic 
+         or Digest. -->
+        <discriminator type="Madam.Discriminator" all="false">
+          <discriminator inputExpression="Request.Url" pattern="/ActAsSecurityTokenService.svc/actas" type="Madam.RegexDiscriminator"/>
+          <discriminator inputExpression="Request.Url" pattern="/Administrator" type="Madam.RegexDiscriminator"/>
+          <discriminator inputExpression="Request.Url" pattern="/ActAsSecurityTokenService.svc/issue" type="Madam.RegexDiscriminator"/>
+        </discriminator>
+      </discriminators>
+    </formsAuthenticationDisposition>
+  </madam>
+  <system.web>
+    <httpRuntime targetFramework="4.6.1" requestValidationMode="2.0"/>
+    <httpModules>
+      <add name="FormsAuthenticationDisposition" type="Madam.FormsAuthenticationDispositionModule, Madam"/>
+      <add name="BasicAuthentication" type="Madam.BasicAuthenticationModule, Madam"/>
+    </httpModules>
+    <authentication mode="Forms">
+      <forms loginUrl="~/Account/Authenticate" timeout="240"/>
+      <!--timeout="2880" />-->
+    </authentication>
+  </system.web>
+  <system.serviceModel>
+    <services>
+      <!--mixed/username-->
+      <!--address="issue"-->
+      <service behaviorConfiguration="Imanami.STS.STSBehavior" name="System.ServiceModel.Security.WSTrustServiceContract">
+        <endpoint address="issue" binding="ws2007HttpBinding" bindingConfiguration="ws2007HttpUsername" contract="System.ServiceModel.Security.IWSTrust13SyncContract">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="actas" binding="ws2007HttpBinding" bindingConfiguration="ws2007HttpWindows" contract="System.ServiceModel.Security.IWSTrust13SyncContract">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpBinding" contract="IMetadataExchange"/>
+      </service>
+      <service behaviorConfiguration="MetadataBehavior" name="Imanami.STS.FederationMetadata.MetadataService">
+        <endpoint address="" binding="webHttpBinding" bindingConfiguration="webBinding" behaviorConfiguration="WebBehavior" contract="Imanami.STS.FederationMetadata.IMetadataService">
+          <identity>
+            <dns value="localhost"/>
+          </identity>
+        </endpoint>
+        <endpoint address="mex" binding="mexHttpBinding" contract="IMetadataExchange"/>
+      </service>
+      <service name="Imanami.STS.Services.ServiceNotifier" behaviorConfiguration="MetadataBehavior">
+        <endpoint address="" binding="webHttpBinding" bindingConfiguration="webBinding" behaviorConfiguration="WebBehavior" contract="Imanami.STS.Services.IServiceNotifier"/>
+      </service>
+    </services>
+    <behaviors>
+      <serviceBehaviors>
+        <behavior name="Imanami.STS.STSBehavior">
+          <serviceMetadata httpGetEnabled="true" httpsGetEnabled="true"/>
+          <serviceDebug includeExceptionDetailInFaults="true"/>
+        </behavior>
+        <behavior name="">
+          <serviceMetadata httpGetEnabled="true" httpsGetEnabled="true"/>
+          <serviceDebug includeExceptionDetailInFaults="false"/>
+        </behavior>
+        <behavior name="MetadataBehavior">
+          <!-- To avoid disclosing metadata information, set the values below to false before deployment -->
+          <serviceMetadata httpGetEnabled="true" httpsGetEnabled="true"/>
+          <!-- To receive exception details in faults for debugging purposes, set the value below to true.  Set to false before deployment to avoid disclosing exception information -->
+          <serviceDebug includeExceptionDetailInFaults="false"/>
+        </behavior>
+      </serviceBehaviors>
+      <endpointBehaviors>
+        <behavior name="WebBehavior">
+          <webHttp/>
+        </behavior>
+      </endpointBehaviors>
+    </behaviors>
+    <bindings>
+      <ws2007HttpBinding>
+        <binding name="ws2007HttpUsername" useDefaultWebProxy="false" receiveTimeout="10:10:10">
+          <security mode="TransportWithMessageCredential">
+            <message clientCredentialType="UserName" negotiateServiceCredential="false" establishSecurityContext="false"/>
+          </security>
+        </binding>
+        <binding name="ws2007HttpWindows" closeTimeout="01:00:00" openTimeout="10:00:00" receiveTimeout="10:00:00" sendTimeout="10:00:00" bypassProxyOnLocal="false" transactionFlow="false" hostNameComparisonMode="StrongWildcard" maxBufferPoolSize="2147483647" maxReceivedMessageSize="2147483647" messageEncoding="Text" textEncoding="utf-8" useDefaultWebProxy="false" allowCookies="false">
+          <!--<readerQuotas maxDepth="32" maxStringContentLength=" 2147483647" maxArrayLength="128000" maxBytesPerRead="2147483647" maxNameTableCharCount="16384"/>-->
+          <!--<reliableSession ordered="true" inactivityTimeout="00:10:00" enabled="false"/>-->
+          <security mode="Transport">
+            <transport clientCredentialType="Windows"/>
+            <!--<message clientCredentialType="Windows" negotiateServiceCredential="false" establishSecurityContext="false" />-->
+          </security>
+        </binding>
+        <!--<binding name="ws2007HttpActAs" useDefaultWebProxy="false" receiveTimeout="10:10:10">
+          <security mode="Transport">
+            <transport clientCredentialType="None"></transport>
+            -->
+        <!--<message clientCredentialType="UserName" negotiateServiceCredential="false" establishSecurityContext="false" />-->
+        <!--
+          </security>
+        </binding>-->
+      </ws2007HttpBinding>
+      <webHttpBinding>
+        <binding name="webBinding">
+          <security mode="Transport"/>
+        </binding>
+      </webHttpBinding>
+    </bindings>
+    <serviceHostingEnvironment aspNetCompatibilityEnabled="false" multipleSiteBindingsEnabled="true"/>
+  </system.serviceModel>
+  <system.identityModel.services>
+    <federationConfiguration>
+      <cookieHandler requireSsl="true"/>
+      <!--path="/" />-->
+      <!--<serviceCertificate>
+        <certificateReference storeName="My" storeLocation="LocalMachine" x509FindType="FindBySubjectName" findValue="LocalSTS" />
+      </serviceCertificate>-->
+    </federationConfiguration>
+  </system.identityModel.services>
+  <system.identityModel>
+    <identityConfiguration>
+      <!--<securityTokenHandlers>-->
+      <!--<remove type="System.IdentityModel.Tokens.WindowsUserNameSecurityTokenHandler, System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089" />
+        <add type="Imanami.STS.Core.Protocols.UserNameTokenHandler, Imanami.STS.Core" />-->
+      <!--<add type="System.IdentityModel.Tokens.SessionSecurityTokenHandler, System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />-->
+      <!--</securityTokenHandlers>-->
+      <!--<audienceUris>
+        <add value="https://localhost/stsclient/"/>
+      </audienceUris>-->
+      <!--<issuerNameRegistry type="CPrakash.Security.ActiveSTS.RealmSTS.TrustedIssuerNameRegistry, CPrakash.Security.ActiveSTS.RealmSTS" />-->
+      <!--<serviceCertificate>
+        <certificateReference storeName="My" storeLocation="LocalMachine" x509FindType="FindByIssuerName" findValue="LocalSTS" />
+      </serviceCertificate>-->
+    </identityConfiguration>
+  </system.identityModel>
+  <log4net>
+    <appender name="DetailedRollingLogFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="Log\GroupID10-STS.log"/>
+      <appendToFile value="true"/>
+      <rollingStyle value="Size"/>
+      <datePattern value="yyyyMMdd-HHmm"/>
+      <maxSizeRollBackups value="10"/>
+      <maximumFileSize value="100MB"/>
+      <staticLogFileName value="true"/>
+      <lockingModel type="log4net.Appender.FileAppender+MinimalLock"/>
+      <layout type="log4net.Layout.PatternLayout">
+        <!--<conversionPattern value="%d [%t]%-5p %c [%x] [%property{NDC}] - %m%n" />-->
+        <header value="Date #=# Level #=# Thread Id #=# Logger #=# Action #=# Event Id #=# Message &#xA;"/>
+        <conversionPattern value="%date #=# %-5level #=# [%thread] #=# %logger #=# %property{ActionId} #=# %property{EventID} #=# %message%n"/>
+      </layout>
+      <threshold value="ERROR"/>
+    </appender>
+    <appender name="EventLogAppender" type="log4net.Appender.EventLogAppender">
+      <param name="LogName" value="Imanami GroupID"/>
+      <param name="ApplicationName" value="GroupID Data Service"/>
+      <param name="CategoryFileName" value="GroupIDEventLogCategories.dll"/>
+      <param name="CategoryCount" value="3"/>
+      <mapping>
+        <level value="ERROR"/>
+        <eventLogEntryType value="Error"/>
+      </mapping>
+      <mapping>
+        <level value="WARN"/>
+        <eventLogEntryType value="Warning"/>
+      </mapping>
+      <mapping>
+        <level value="INFO"/>
+        <eventLogEntryType value="Information"/>
+      </mapping>
+      <mapping>
+        <level value="SUCCESSAUDIT"/>
+        <eventLogEntryType value="SuccessAudit"/>
+      </mapping>
+      <mapping>
+        <level value="FAILUREAUDIT"/>
+        <eventLogEntryType value="FailureAudit"/>
+      </mapping>
+      <layout type="log4net.Layout.PatternLayout">
+        <conversionPattern value="%date [%thread] %-5level %logger [%property{NDC}] - %message%newline"/>
+        <!--<conversionPattern value="%date #=# %-5level #=# [%thread] #=# %logger #=# %message%n" />-->
+      </layout>
+      <threshold value="Error"/>
+    </appender>
+    <root>
+      <level value="ERROR"/>
+      <appender-ref ref="DetailedRollingLogFileAppender"/>
+      <appender-ref ref="EventLogAppender"/>
+    </root>
+  </log4net>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral"/>
+        <bindingRedirect oldVersion="0.0.0.0-10.0.0.0" newVersion="10.0.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Helpers" publicKeyToken="31bf3856ad364e35"/>
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Mvc" publicKeyToken="31bf3856ad364e35"/>
+        <bindingRedirect oldVersion="1.0.0.0-5.0.0.0" newVersion="5.0.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Optimization" publicKeyToken="31bf3856ad364e35"/>
+        <bindingRedirect oldVersion="1.0.0.0-1.1.0.0" newVersion="1.1.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.WebPages" publicKeyToken="31bf3856ad364e35"/>
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="WebGrease" publicKeyToken="31bf3856ad364e35"/>
+        <bindingRedirect oldVersion="0.0.0.0-1.5.2.14234" newVersion="1.5.2.14234"/>
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Practices.Unity" publicKeyToken="31bf3856ad364e35" culture="neutral"/>
+        <bindingRedirect oldVersion="0.0.0.0-3.0.0.0" newVersion="3.0.0.0"/>
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+  <system.webServer>
+    <validation validateIntegratedModeConfiguration="false"/>
+    <modules runAllManagedModulesForAllRequests="true">
+      <!--<add name="SessionAuthenticationModule" type="System.IdentityModel.Services.SessionAuthenticationModule, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />-->
+      <add name="SessionAuthenticationModule" type="Imanami.STS.Core.Modules.SessionAuthenticationModule, Imanami.STS.Core"/>
+      <add name="FormsAuthenticationDisposition" type="Madam.FormsAuthenticationDispositionModule, Madam"/>
+    </modules>
+    <!--To browse web app root directory during debugging, set the value below to true.
+        Set to false before deployment to avoid disclosing web app folder information.-->
+    <directoryBrowse enabled="true"/>
+    <security>
+      <authentication>
+        <windowsAuthentication>
+          <providers>
+            <clear/>
+            <add value="NTLM"/>
+            <add value="Negotiate"/>
+          </providers>
+        </windowsAuthentication>
+      </authentication>
+    </security>
+    <handlers>
+    </handlers>
+    <!--Rewrite the usual federationmetadata.xml path to be rerouted to the service.-->
+    <!--<rewrite>
+      <rules>
+        <rule name="Rewrite federation metadata url">
+          <match url="(federationmetadata/2007-06/federationmetadata.xml)"/>
+          <action type="Rewrite" url="SecurityTokenService.svc/{R:1}"/>
+        </rule>
+      </rules>
+    </rewrite>-->
+  </system.webServer>
+</configuration>

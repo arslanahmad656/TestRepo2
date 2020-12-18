@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  For more information on how to configure your ASP.NET application, please visit
+  http://go.microsoft.com/fwlink/?LinkId=301880
+  -->
+<configuration>
+  <configSections>
+    <section name="log4net" type="log4net.Config.Log4NetConfigurationSectionHandler, Imanami.log4net" requirePermission="false" />
+    <section name="entityFramework" type="System.Data.Entity.Internal.ConfigFile.EntityFrameworkSection, EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+    <section name="system.identityModel" type="System.IdentityModel.Configuration.SystemIdentityModelSection, System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089" />
+    <section name="system.identityModel.services" type="System.IdentityModel.Services.Configuration.SystemIdentityModelServicesSection, System.IdentityModel.Services, Version=4.0.0.0, Culture=neutral, PublicKeyToken=B77A5C561934E089" />
+    <!-- For more information on Entity Framework configuration, visit http://go.microsoft.com/fwlink/?LinkID=237468 -->
+  </configSections>
+  <!--<connectionStrings>
+    <add name="DefaultConnection" connectionString="Data Source=(LocalDb)\v11.0;AttachDbFilename=|DataDirectory|\aspnet-Imanami.SelfService.Client-20140421030136.mdf;Initial Catalog=aspnet-Imanami.SelfService.Client-20140421030136;Integrated Security=True" providerName="System.Data.SqlClient" />
+  </connectionStrings>-->
+  <log4net>
+    <appender name="DetailedRollingLogFileAppender" type="log4net.Appender.RollingFileAppender">
+      <file value="..\Log\GroupID10-SSP.log" />
+      <appendToFile value="true" />
+      <rollingStyle value="Size" />
+      <datePattern value="yyyyMMdd-HHmm" />
+      <maxSizeRollBackups value="10" />
+      <maximumFileSize value="100MB" />
+      <staticLogFileName value="true" />
+      <lockingModel type="log4net.Appender.FileAppender+MinimalLock" />
+      <layout type="log4net.Layout.PatternLayout">
+        <header value="[GroupID Logfile Start]&#xA;" />
+        <footer value="[GroupID Logfile End]&#xA;" />
+        <!--<conversionPattern value="%d [%t]%-5p %c [%x] [%property{NDC}] - %m%n" />-->
+        <conversionPattern value="%date #=# %-5level #=# [%thread] #=# %logger #=# %property{ActionId} #=# %property{EventID} #=# %property{LoginId} #=# %property{Category} #=# %message%n" />
+      </layout>
+      <threshold value="ERROR" />
+    </appender>
+    <root>
+      <level value="Error" />
+      <appender-ref ref="DetailedRollingLogFileAppender" />
+    </root>
+  </log4net>
+  <appSettings>
+    <add key="aspnet:MaxJsonDeserializerMembers" value="150000" />
+    <add key="webpages:Version" value="3.0.0.0" />
+    <add key="webpages:Enabled" value="false" />
+    <add key="ClientValidationEnabled" value="true" />
+    <add key="UnobtrusiveJavaScriptEnabled" value="true" />
+    <add key="log4net.Internal.Debug" value="true" />
+    <add key="log4net.MethodScope" value="public" />
+    <add key="log4net.NamespacesToLog" value="" />
+    <add key="sessiontimeout" value="20" />
+    <add key="vsname" value="SSP" />
+    <add key="splash" value="True" />
+    <add key="vs:EnableBrowserLink" value="false" />
+    <add key="GetStatusInfo" value="true" />
+    <add key="ViewsFolder" value="Views" />
+    <add key="EventLogAppender.Threshold" value="ERROR" />
+  </appSettings>
+  <!--
+    For a description of web.config changes see http://go.microsoft.com/fwlink/?LinkId=235367.
+
+    The following attributes can be set on the <httpRuntime> tag.
+      <system.Web>
+        <httpRuntime targetFramework="4.6.1" />
+      </system.Web>
+  -->
+  <system.web>
+    <globalization culture="auto" uiCulture="auto" />
+    <!--<authorization>
+      <deny users="?" />
+    </authorization>-->
+    <authentication mode="None" />
+    <!--<authentication mode="Forms">
+      <forms defaultUrl="~" loginUrl="~/Account/Login" timeout="2880" name="ASPXUSERAUTH" />
+    </authentication>-->
+    <pages controlRenderingCompatibilityVersion="4.5" buffer="true" />
+    <trace enabled="false" pageOutput="false" />
+    <compilation debug="true" targetFramework="4.7.2" />
+    <!--<httpRuntime targetFramework="4.6.1" requestValidationMode="2.0" relaxedUrlToFileSystemMapping="true"/>-->
+    <httpRuntime targetFramework="4.6.1" requestValidationMode="2.0" relaxedUrlToFileSystemMapping="true" encoderType="System.Web.Security.AntiXss.AntiXssEncoder, System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <customErrors mode="Off">
+    </customErrors>
+  </system.web>
+  <system.webServer>
+    <modules>
+      <remove name="FormsAuthenticationModule" />
+      <add name="WSFederationAuthenticationModule" type="Imanami.STS.Core.Modules.WSFederationAuthenticationModule, Imanami.STS.Core" preCondition="managedHandler" />
+      <add name="SessionAuthenticationModule" type="Imanami.STS.Core.Modules.SessionAuthenticationModule, Imanami.STS.Core" />
+    </modules>
+    <security>
+      <requestFiltering>
+        <requestLimits maxAllowedContentLength="2147483648" />
+      </requestFiltering>
+      <authentication>
+        <anonymousAuthentication enabled="true" />
+        <basicAuthentication enabled="true" realm="Imanami GroupID" defaultLogonDomain="" />
+        <digestAuthentication enabled="false" realm="0" />
+        <windowsAuthentication enabled="true" />
+      </authentication>
+    </security>
+    <staticContent>
+      <clientCache cacheControlCustom="public" cacheControlMaxAge="365.00:00:00" cacheControlMode="UseMaxAge" />
+    </staticContent>
+    <urlCompression doStaticCompression="true" doDynamicCompression="false" />
+    <directoryBrowse enabled="true" showFlags="Date, Time, Size, Extension" />
+    <handlers accessPolicy="Read, Script" />
+    <defaultDocument enabled="true" />
+    <asp enableParentPaths="true" bufferingOn="true" />
+    <httpErrors>
+      <remove statusCode="500" subStatusCode="-1" />
+      <error statusCode="500" subStatusCode="100" prefixLanguageFilePath="%SystemDrive%\inetpub\custerr" path="SSP/crash.asp" responseMode="ExecuteURL" />
+    </httpErrors>
+  </system.webServer>
+  <!--<system.web>
+    <authentication mode="None" />
+    <compilation debug="true" targetFramework="4.5" />
+    <httpRuntime targetFramework="4.5" />
+  </system.web>
+  <system.webServer>
+    <modules>
+      <remove name="FormsAuthenticationModule" />
+    </modules>
+  </system.webServer>-->
+  <system.identityModel>
+    <identityConfiguration name="stsConfiguration" saveBootstrapContext="true">
+      <audienceUris mode="Never">
+        <add value="https://gid.local:5556/SSP/" />
+      </audienceUris>
+      <!-- The certificateValidationMode="None" setting is insecure and used only to ease running this sample application. This setting should not be used in production deployments. -->
+      <certificateValidation certificateValidationMode="None" />
+      <issuerNameRegistry type="System.IdentityModel.Tokens.ConfigurationBasedIssuerNameRegistry, System.IdentityModel, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+        <trustedIssuers>
+          <add thumbprint="74474680DDFC0748DA9EFEA902F728836CC45210" name="GroupIDSecurityService" />
+        </trustedIssuers>
+      </issuerNameRegistry>
+      <securityTokenHandlers>
+        <remove type="System.IdentityModel.Tokens.SessionSecurityTokenHandler,                     System.IdentityModel, Version=4.0.0.0, Culture=neutral,                     PublicKeyToken=B77A5C561934E089" />
+        <add type="System.IdentityModel.Tokens.SessionSecurityTokenHandler,                  System.IdentityModel, Version=4.0.0.0, Culture=neutral,                  PublicKeyToken=B77A5C561934E089">
+          <sessionTokenRequirement lifetime="00:30:00" />
+        </add>
+      </securityTokenHandlers>
+    </identityConfiguration>
+  </system.identityModel>
+  <system.identityModel.services>
+    <federationConfiguration>
+      <wsFederation passiveRedirectEnabled="true" issuer="https://gid.local:5556/GroupIDSecurityService/" realm="https://gid.local:5556/SSP/" signInQueryString="cid=3bbdf9b3-842a-4cae-9198-182ffaa68b61" signOutQueryString="cid=3bbdf9b3-842a-4cae-9198-182ffaa68b61" requireHttps="true" />
+      <cookieHandler requireSsl="true" />
+      <!--path="/" />-->
+      <!--<serviceCertificate>
+        <certificateReference storeName="My" storeLocation="LocalMachine" x509FindType="FindBySubjectName" findValue="LocalSTS" />
+      </serviceCertificate>-->
+    </federationConfiguration>
+  </system.identityModel.services>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Helpers" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Mvc" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="0.0.0.0-5.0.0.0" newVersion="5.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.WebPages" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="WebGrease" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="0.0.0.0-1.5.2.14234" newVersion="1.5.2.14234" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Owin" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-2.1.0.0" newVersion="2.1.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Owin.Security" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-2.1.0.0" newVersion="2.1.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Practices.Unity" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Microsoft.Owin.Security.Cookies" publicKeyToken="31bf3856ad364e35" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-2.1.0.0" newVersion="2.1.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-10.0.0.0" newVersion="10.0.0.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+  <entityFramework>
+    <defaultConnectionFactory type="System.Data.Entity.Infrastructure.LocalDbConnectionFactory, EntityFramework">
+      <parameters>
+        <parameter value="v11.0" />
+      </parameters>
+    </defaultConnectionFactory>
+    <providers>
+      <provider invariantName="System.Data.SqlClient" type="System.Data.Entity.SqlServer.SqlProviderServices, EntityFramework.SqlServer" />
+    </providers>
+  </entityFramework>
+  <system.diagnostics>
+    <sources>
+      <source name="SignalR.SqlMessageBus">
+        <listeners>
+          <add name="SignalR-Bus" />
+        </listeners>
+      </source>
+      <source name="SignalR.ServiceBusMessageBus">
+        <listeners>
+          <add name="SignalR-Bus" />
+        </listeners>
+      </source>
+      <source name="SignalR.ScaleoutMessageBus">
+        <listeners>
+          <add name="SignalR-Bus" />
+        </listeners>
+      </source>
+      <source name="SignalR.Transports.WebSocketTransport">
+        <listeners>
+          <add name="SignalR-Transports" />
+        </listeners>
+      </source>
+      <source name="SignalR.Transports.ServerSentEventsTransport">
+        <listeners>
+          <add name="SignalR-Transports" />
+        </listeners>
+      </source>
+      <source name="SignalR.Transports.ForeverFrameTransport">
+        <listeners>
+          <add name="SignalR-Transports" />
+        </listeners>
+      </source>
+      <source name="SignalR.Transports.LongPollingTransport">
+        <listeners>
+          <add name="SignalR-Transports" />
+        </listeners>
+      </source>
+      <source name="SignalR.Transports.TransportHeartBeat">
+        <listeners>
+          <add name="SignalR-Transports" />
+        </listeners>
+      </source>
+    </sources>
+    <switches>
+      <add name="SignalRSwitch" value="Verbose" />
+    </switches>
+    <sharedListeners>
+      <add name="SignalR-Transports" type="System.Diagnostics.TextWriterTraceListener" initializeData="transports.log.txt" />
+      <add name="SignalR-Bus" type="System.Diagnostics.TextWriterTraceListener" initializeData="bus.log.txt" />
+    </sharedListeners>
+    <trace autoflush="true" />
+  </system.diagnostics>
+</configuration>
